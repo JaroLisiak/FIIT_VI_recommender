@@ -79,35 +79,42 @@ def find_similarities():
     # load files
     print("finding similarities")
     zoznam = load_from_file(events + "zoznam.txt",)
-    similar_users = {}
+    #similar_users = {}
+    similar_users = load_from_file("similar_users.txt")
     print("file loaded")
+    pos = 0
     for customer_id_a, items_a in zoznam.items():
-        for customer_id_b, items_b in zoznam.items():
-            # select two different customers
-            if customer_id_a != customer_id_b:
-                # get score for their items
-                score_ab = get_similarity(items_a, items_b)
-                if score_ab > 0:
-                    # if user has some similarity, add it to list
-                    similar_users.setdefault(customer_id_a,[]).append([customer_id_b,score_ab])
-    #print(similar_users)
-    print("list of similar users created")
+        pos += 1
+        print(pos, " / ", len(zoznam))
+        if (pos >= 1600) and (pos <= 2000):
+            for customer_id_b, items_b in zoznam.items():
+                # select two different customers
+                if customer_id_a != customer_id_b:
+                    # get score for their items
+                    score_ab = get_similarity(items_a, items_b)
+                    if score_ab > 0:
+                        # if user has some similarity, add it to list
+                        similar_users.setdefault(customer_id_a,[]).append([customer_id_b,score_ab])
+        else:
+            pass
+
+    sort_and_save("similar_users.txt", similar_users)
+    print("done")
+    return
+
+
+
+def sort_and_save(filename,similar_users):
     try:
         sorted_similar = {}
         for index in similar_users:
             data = sorted(similar_users[index], key=operator.itemgetter(1),reverse=True)
             sorted_similar.setdefault(index,data)
-        print("list of similar customers sorted")
         for index in sorted_similar:
             # if user has more then 5 similar users, remove others
-            print(index,sorted_similar[index])
             if len(sorted_similar[index]) > 5:
                 del sorted_similar[index][5:]
-        print("list of similar user reduced")
-        print("saving list of similar users to file")
-        save_to_file(events + "_user_similarities.txt",sorted_similar)
-        print("saving done!")
-
+        save_to_file(filename,sorted_similar)
     except Exception as e:
         print(e)
 
