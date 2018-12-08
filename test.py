@@ -139,24 +139,37 @@ def find_diff_items(id1,id2,split_time,big_zoznam):
             id1_items = big_zoznam[id1]
             id2_items = big_zoznam[id2]
             print(len(id2_items))
-            for x in id1_items:
-                if x['timestamp'] != 'timestamp' and int(x['timestamp']) < split_time:
-                    for q in id2_items:
-                        if q['timestamp'] != 'timestamp' and int(q['timestamp']) < split_time:
-                            if q['product_id'] == x['product_id']:
-                                id2_items.remove(q)
-                                continue
+
+            if len(id2_items) > 0:
+                for x in id1_items:
+                    if x['timestamp'] != 'timestamp' and int(x['timestamp']) < split_time:
+                        for q in id2_items:
+                            if q['timestamp'] != 'timestamp' and int(q['timestamp']) < split_time:
+                                if q['product_id'] == x['product_id']:
+                                    id2_items.remove(q)
+                                    continue
+            else:
+                # podobny user nema ziadne itemy
+                # toto by nemalo nastat, lebo ak by nemal itemy, tak nemoze byt podobny
+
+
+
             print(len(id2_items))
-            similaritems = {}
-            # ak ostava vela veci, berem posledne?
-            # ziskam iba veci z rovnakej kategorie
-            for x in id1_items:
-                if x['timestamp'] != 'timestamp' and int(x['timestamp']) < split_time:
-                    for q in id2_items:
-                        if q['timestamp'] != 'timestamp' and int(q['timestamp']) < split_time:
-                            if q['category_id'] == x['category_id']:
-                                similaritems.setdefault(q['product_id'])
-            print(len(similaritems))
+            if len(id2_items) > 0:
+                similaritems = {}
+                # ak ostava vela veci, berem posledne?
+                # ziskam iba veci z rovnakej kategorie
+                for x in id1_items:
+                    if x['timestamp'] != 'timestamp' and int(x['timestamp']) < split_time:
+                        for q in id2_items:
+                            if q['timestamp'] != 'timestamp' and int(q['timestamp']) < split_time:
+                                if q['category_id'] == x['category_id']:
+                                    similaritems.setdefault(q['product_id'])
+            else:
+                # nemam veci na doporucenie
+
+            if len(similaritems) > 1:
+                # return posledne 2 itemy)
 
 def get_recommended(customer_id):
     similar_users = load_from_file("similar_users.txt") # cust_id + similar_cust_id + score (sorted)
